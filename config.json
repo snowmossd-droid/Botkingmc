@@ -8,7 +8,7 @@
   "botPassword": "nguyendz1212",
   "afkSlot": 0,
   "discord": {
-    "token": "MTQ3ODc1NzU5NjgzMDg5NjE5MA.GCozdu.aPgE09zXUrgZFJeWOHlFuZL1HT1SDkZPBINDMI",
-    "logChannelId": "1516557254751551558"
+    "token": "TOKEN_BOT_DISCORD",
+    "logChannelId": "ID_CHANNEL_DISCORD"
   }
 }
