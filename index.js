@@ -7,8 +7,6 @@ let afkInterval = null
 let startTime = Date.now()
 let inLobby = true
 let afkDone = false
-let menuSent = false
-let afkSent = false
 
 const C = {
   reset: '\x1b[0m', green: '\x1b[32m', yellow: '\x1b[33m',
@@ -37,6 +35,21 @@ function getUptime() {
 
 function sleep(ms) {
   return new Promise(r => setTimeout(r, ms))
+}
+
+function getWindowTitle(window) {
+  if (!window) return ''
+  if (typeof window.title === 'string') return window.title
+  if (window.title && typeof window.title === 'object') {
+    if (window.title.text) return window.title.text
+    if (window.title.translate) return window.title.translate
+    try {
+      return JSON.stringify(window.title)
+    } catch (_) {
+      return ''
+    }
+  }
+  return ''
 }
 
 function stripColor(str) {
@@ -78,8 +91,6 @@ function stopAntiAFK() {
 function start_bot() {
   inLobby = true
   afkDone = false
-  menuSent = false
-  afkSent = false
 
   bot = mineflayer.createBot({
     host: config.host,
@@ -103,7 +114,6 @@ function start_bot() {
     await sleep(30000)
     bot.chat('/menu')
     log('BOT', 'Da gui /menu')
-    menuSent = true
   })
 
   bot.on('spawn', () => {
@@ -122,10 +132,11 @@ function start_bot() {
   })
 
   bot.on('windowOpen', async (window) => {
-    const title = stripColor(window.title)
-    log('GUI', `Cua so: "${title}"`)
+    const title = getWindowTitle(window)
+    const cleanTitle = stripColor(title).toLowerCase()
+    log('GUI', `Cua so: "${cleanTitle}"`)
 
-    if (inLobby && title && title.toLowerCase().includes('menu')) {
+    if (inLobby && (cleanTitle.includes('menu') || cleanTitle.includes('server'))) {
       await sleep(30000)
       bot.clickWindow(24, 0, 0)
       log('BOT', 'Click slot 24 -> vao KingSMP')
@@ -134,10 +145,9 @@ function start_bot() {
       await sleep(30000)
       bot.chat('/afk')
       log('BOT', 'Da gui /afk')
-      afkSent = true
     }
 
-    if (title && title.toLowerCase().includes('afk') && !afkDone) {
+    if (cleanTitle.includes('afk') && !afkDone) {
       await sleep(30000)
       const slot = config.afkSlot ?? 0
       bot.clickWindow(slot, 0, 0)
@@ -152,8 +162,6 @@ function start_bot() {
     stopAntiAFK()
     afkDone = false
     inLobby = true
-    menuSent = false
-    afkSent = false
     log('WARN', '💀 Bot chet! Respawn...')
     setTimeout(async () => {
       if (!bot) return
