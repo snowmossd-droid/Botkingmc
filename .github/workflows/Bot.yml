@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Tạo config từ Secrets
+      - name: Tạo config
         env:
           MC_USERNAME: ${{ secrets.MC_USERNAME }}
           MC_HOST: ${{ secrets.MC_HOST }}
@@ -31,8 +31,6 @@ jobs:
           MC_PASSWORD: ${{ secrets.MC_PASSWORD }}
           MC_REGISTERED: ${{ secrets.MC_REGISTERED }}
           AFK_SLOT: ${{ secrets.AFK_SLOT }}
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
         run: |
           node -e "
           const cfg = {
@@ -44,13 +42,10 @@ jobs:
             registered: process.env.MC_REGISTERED === 'true',
             botPassword: process.env.MC_PASSWORD,
             afkSlot: parseInt(process.env.AFK_SLOT) || 0,
-            discord: {
-              token: process.env.DISCORD_TOKEN,
-              logChannelId: process.env.DISCORD_CHANNEL_ID
-            }
           };
           require('fs').writeFileSync('config.json', JSON.stringify(cfg, null, 2));
-          console.log('Config OK');
+          console.log('Config tạo thành công!');
+          console.log('Host:', cfg.host, '| User:', cfg.username, '| Version:', cfg.version);
           "
 
       - name: Chạy bot
