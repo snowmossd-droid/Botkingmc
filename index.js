@@ -70,39 +70,46 @@ async function goAfk() {
   afkDone = false
   await sleep(2000, 500)
   bot.chat('/afk')
-  log('BOT', 'Gửi /afk...')
+  log('BOT', 'Da gui /afk...')
 }
 
 function start_bot() {
   inLobby = true
   afkDone = false
 
-  bot = mineflayer.createBot({
+  console.log('Loading config:', {
     host: config.host,
     port: config.port,
     username: config.username,
-    version: config.version,
+    version: config.version
+  })
+
+  bot = mineflayer.createBot({
+    host: config.host || "kingsmp.vn",
+    port: config.port || 25565,
+    username: config.username || "AnhvendzXD",
+    version: config.version || "1.21",
     respawn: true,
   })
 
   bot.on('login', () => {
-    log('OK', `Đăng nhập! User: ${config.username}`)
+    log('OK', `Dang nhap! User: ${config.username || "AnhvendzXD"}`)
     if (!config.registered) {
       setTimeout(() => {
-        bot.chat(`/dk ${config.botPassword}`)
+        bot.chat(`/dk ${config.botPassword || "nguyendz1212"}`)
         config.registered = true
-        log('BOT', 'Đăng ký: /dk')
+        log('BOT', 'Dang ky: /dk')
       }, 2000)
     } else {
       setTimeout(() => {
-        bot.chat(`/dn ${config.botPassword}`)
-        log('BOT', 'Đăng nhập: /dn')
+        bot.chat(`/dn ${config.botPassword || "nguyendz1212"}`)
+        log('BOT', 'Dang nhap: /dn')
       }, 2000)
     }
   })
 
   bot.on('spawn', () => {
-    log('OK', 'Spawn vào server!')
+    log('OK', 'Spawn vao server!')
   })
 
   bot.on('chat', (username, message) => {
@@ -118,7 +125,7 @@ function start_bot() {
 
   bot.on('windowOpen', async (window) => {
     const title = stripColor(window.title || '')
-    log('GUI', `Cửa sổ: "${title}"`)
+    log('GUI', `Cua so: "${title}"`)
 
     window.slots.forEach((item, i) => {
       if (item && item.type !== 0) {
@@ -130,7 +137,7 @@ function start_bot() {
     if (inLobby) {
       await sleep(2653)
       bot.clickWindow(24, 0, 0)
-      log('BOT', 'Click slot 24 → vào KingSMP...')
+      log('BOT', 'Click slot 24 -> vao KingSMP...')
       inLobby = false
       return
     }
@@ -139,22 +146,22 @@ function start_bot() {
       await sleep(800, 300)
       const slot = config.afkSlot ?? 0
       bot.clickWindow(slot, 0, 0)
-      log('BOT', `Click slot ${slot} → khu AFK ${slot + 1}`)
+      log('BOT', `Click slot ${slot} -> khu AFK ${slot + 1}`)
       afkDone = true
       startAntiAFK()
-      log('OK', 'Đang treo AFK ♾️')
+      log('OK', 'Dang treo AFK ♾️')
     }
   })
 
   bot.on('death', () => {
     stopAntiAFK()
     afkDone = false
-    log('WARN', '💀 Bot chết! Respawn sau 3-8s...')
+    log('WARN', '💀 Bot chet! Respawn sau 3-8s...')
     const delay = Math.floor(Math.random() * 5000) + 3000
     setTimeout(async () => {
       if (!bot) return
       bot.respawn()
-      log('OK', 'Đã respawn! Đợi 5s rồi /afk lại...')
+      log('OK', 'Da respawn! Doi 5s roi /afk lai...')
       await sleep(5000, 1000)
       goAfk()
     }, delay)
@@ -164,7 +171,7 @@ function start_bot() {
     stopAntiAFK()
     if (reconnecting) return
     reconnecting = true
-    log('WARN', 'Mất kết nối! Reconnect sau 5s...')
+    log('WARN', 'Mat ket noi! Reconnect sau 5s...')
     setTimeout(() => {
       reconnecting = false
       start_bot()
@@ -172,7 +179,7 @@ function start_bot() {
   })
 
   bot.on('error', (err) => {
-    log('ERROR', `Lỗi: ${err.message}`)
+    log('ERROR', `Loi: ${err.message}`)
   })
 
   setInterval(() => {
