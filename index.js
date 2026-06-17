@@ -70,39 +70,32 @@ async function goAfk() {
   afkDone = false
   await sleep(2000, 500)
   bot.chat('/afk')
-  log('BOT', 'Da gui /afk...')
+  log('BOT', 'Da gui /afk')
 }
 
 function start_bot() {
   inLobby = true
   afkDone = false
 
-  console.log('Loading config:', {
+  bot = mineflayer.createBot({
     host: config.host,
     port: config.port,
     username: config.username,
-    version: config.version
-  })
-
-  bot = mineflayer.createBot({
-    host: config.host || "kingsmp.vn",
-    port: config.port || 25565,
-    username: config.username || "AnhvendzXD",
-    version: config.version || "1.21",
+    version: config.version,
     respawn: true,
   })
 
   bot.on('login', () => {
-    log('OK', `Dang nhap! User: ${config.username || "AnhvendzXD"}`)
+    log('OK', `Dang nhap! User: ${config.username}`)
     if (!config.registered) {
       setTimeout(() => {
-        bot.chat(`/dk ${config.botPassword || "nguyendz1212"}`)
+        bot.chat(`/dk ${config.botPassword}`)
         config.registered = true
         log('BOT', 'Dang ky: /dk')
       }, 2000)
     } else {
       setTimeout(() => {
-        bot.chat(`/dn ${config.botPassword || "nguyendz1212"}`)
+        bot.chat(`/dn ${config.botPassword}`)
         log('BOT', 'Dang nhap: /dn')
       }, 2000)
     }
@@ -110,6 +103,10 @@ function start_bot() {
 
   bot.on('spawn', () => {
     log('OK', 'Spawn vao server!')
+    setTimeout(() => {
+      bot.chat('/menu')
+      log('BOT', 'Da gui /menu')
+    }, 3000)
   })
 
   bot.on('chat', (username, message) => {
@@ -127,17 +124,10 @@ function start_bot() {
     const title = stripColor(window.title || '')
     log('GUI', `Cua so: "${title}"`)
 
-    window.slots.forEach((item, i) => {
-      if (item && item.type !== 0) {
-        const name = item.customName ? stripColor(item.customName) : item.name
-        log('GUI', `  Slot ${String(i).padStart(2)}: [${item.name}] "${name}"`)
-      }
-    })
-
-    if (inLobby) {
-      await sleep(2653)
-      bot.clickWindow(24, 0, 0)
-      log('BOT', 'Click slot 24 -> vao KingSMP...')
+    if (inLobby && title.toLowerCase().includes('menu')) {
+      await sleep(1000, 300)
+      bot.clickWindow(22, 0, 0)
+      log('BOT', 'Click slot 22 -> vao KingSMP')
       inLobby = false
       return
     }
@@ -146,32 +136,32 @@ function start_bot() {
       await sleep(800, 300)
       const slot = config.afkSlot ?? 0
       bot.clickWindow(slot, 0, 0)
-      log('BOT', `Click slot ${slot} -> khu AFK ${slot + 1}`)
+      log('BOT', `Click slot ${slot} -> AFK`)
       afkDone = true
       startAntiAFK()
-      log('OK', 'Dang treo AFK ♾️')
+      log('OK', 'Dang AFK')
     }
   })
 
   bot.on('death', () => {
     stopAntiAFK()
     afkDone = false
-    log('WARN', '💀 Bot chet! Respawn sau 3-8s...')
-    const delay = Math.floor(Math.random() * 5000) + 3000
+    inLobby = true
+    log('WARN', '💀 Bot chet! Respawn...')
     setTimeout(async () => {
       if (!bot) return
       bot.respawn()
-      log('OK', 'Da respawn! Doi 5s roi /afk lai...')
       await sleep(5000, 1000)
-      goAfk()
-    }, delay)
+      bot.chat('/menu')
+      log('BOT', 'Da gui /menu')
+    }, 5000)
   })
 
   bot.on('end', () => {
     stopAntiAFK()
     if (reconnecting) return
     reconnecting = true
-    log('WARN', 'Mat ket noi! Reconnect sau 5s...')
+    log('WARN', 'Mat ket noi! Reconnect...')
     setTimeout(() => {
       reconnecting = false
       start_bot()
