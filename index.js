@@ -7,6 +7,8 @@ let afkInterval = null
 let startTime = Date.now()
 let inLobby = true
 let afkDone = false
+let menuSent = false
+let afkSent = false
 
 const C = {
   reset: '\x1b[0m', green: '\x1b[32m', yellow: '\x1b[33m',
@@ -38,6 +40,14 @@ function sleep(ms) {
 }
 
 function stripColor(str) {
+  if (!str) return ''
+  if (typeof str !== 'string') {
+    try {
+      str = String(str)
+    } catch (_) {
+      return ''
+    }
+  }
   try {
     const extract = (o) => {
       if (typeof o === 'string') return o
@@ -68,6 +78,8 @@ function stopAntiAFK() {
 function start_bot() {
   inLobby = true
   afkDone = false
+  menuSent = false
+  afkSent = false
 
   bot = mineflayer.createBot({
     host: config.host,
@@ -91,6 +103,7 @@ function start_bot() {
     await sleep(30000)
     bot.chat('/menu')
     log('BOT', 'Da gui /menu')
+    menuSent = true
   })
 
   bot.on('spawn', () => {
@@ -109,10 +122,10 @@ function start_bot() {
   })
 
   bot.on('windowOpen', async (window) => {
-    const title = stripColor(window.title || '')
+    const title = stripColor(window.title)
     log('GUI', `Cua so: "${title}"`)
 
-    if (inLobby && title.toLowerCase().includes('menu')) {
+    if (inLobby && title && title.toLowerCase().includes('menu')) {
       await sleep(30000)
       bot.clickWindow(24, 0, 0)
       log('BOT', 'Click slot 24 -> vao KingSMP')
@@ -121,9 +134,10 @@ function start_bot() {
       await sleep(30000)
       bot.chat('/afk')
       log('BOT', 'Da gui /afk')
+      afkSent = true
     }
 
-    if (title.toLowerCase().includes('afk') && !afkDone) {
+    if (title && title.toLowerCase().includes('afk') && !afkDone) {
       await sleep(30000)
       const slot = config.afkSlot ?? 0
       bot.clickWindow(slot, 0, 0)
@@ -138,6 +152,8 @@ function start_bot() {
     stopAntiAFK()
     afkDone = false
     inLobby = true
+    menuSent = false
+    afkSent = false
     log('WARN', '💀 Bot chet! Respawn...')
     setTimeout(async () => {
       if (!bot) return
