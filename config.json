@@ -1,14 +1,10 @@
 {
-  "username": "hahahihiAnhvendz",
+  "username": "AnhvendzXD",
   "host": "kingsmp.vn",
   "port": 25565,
   "version": "1.21.1",
   "respawn": false,
   "registered": false,
   "botPassword": "nguyendz1212",
-  "afkSlot": 0,
-  "discord": {
-    "token": "MTQ3ODc1NzU5NjgzMDg5NjE5MA.GZ818Z.0e8OwDqXIVDtK6DQe8m1B9WG_b6NIBBhYLNSsA",
-    "logChannelId": "1516557254751551558"
-  }
+  "afkSlot": 0
 }
