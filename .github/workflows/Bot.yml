@@ -17,30 +17,41 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
 
       - name: Tạo config từ Secrets
+        env:
+          MC_USERNAME: ${{ secrets.MC_USERNAME }}
+          MC_HOST: ${{ secrets.MC_HOST }}
+          MC_PORT: ${{ secrets.MC_PORT }}
+          MC_VERSION: ${{ secrets.MC_VERSION }}
+          MC_PASSWORD: ${{ secrets.MC_PASSWORD }}
+          MC_REGISTERED: ${{ secrets.MC_REGISTERED }}
+          AFK_SLOT: ${{ secrets.AFK_SLOT }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
         run: |
-          cat > config.json << ENDOFCONFIG
-          {
-            "username": "${{ secrets.MC_USERNAME }}",
-            "host": "${{ secrets.MC_HOST }}",
-            "port": ${{ secrets.MC_PORT }},
-            "version": "${{ secrets.MC_VERSION }}",
-            "respawn": false,
-            "registered": ${{ secrets.MC_REGISTERED }},
-            "botPassword": "${{ secrets.MC_PASSWORD }}",
-            "afkSlot": ${{ secrets.AFK_SLOT }},
-            "discord": {
-              "token": "${{ secrets.DISCORD_TOKEN }}",
-              "logChannelId": "${{ secrets.DISCORD_CHANNEL_ID }}"
+          node -e "
+          const cfg = {
+            username: process.env.MC_USERNAME,
+            host: process.env.MC_HOST,
+            port: parseInt(process.env.MC_PORT) || 25565,
+            version: process.env.MC_VERSION,
+            respawn: false,
+            registered: process.env.MC_REGISTERED === 'true',
+            botPassword: process.env.MC_PASSWORD,
+            afkSlot: parseInt(process.env.AFK_SLOT) || 0,
+            discord: {
+              token: process.env.DISCORD_TOKEN,
+              logChannelId: process.env.DISCORD_CHANNEL_ID
             }
-          }
-          ENDOFCONFIG
+          };
+          require('fs').writeFileSync('config.json', JSON.stringify(cfg, null, 2));
+          console.log('Config OK');
+          "
 
       - name: Chạy bot
         run: node index.js
-        
