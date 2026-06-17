@@ -134,20 +134,25 @@ function start_bot() {
   bot.on('windowOpen', async (window) => {
     const title = getWindowTitle(window)
     const cleanTitle = stripColor(title).toLowerCase()
-    log('GUI', `Cua so: "${cleanTitle}"`)
+    log('GUI', `Cua so: "${cleanTitle || '(rong - server dung resource pack, khong co chu)'}"`)
 
-    if (inLobby && (cleanTitle.includes('menu') || cleanTitle.includes('server'))) {
+    // QUAN TRONG: server nay tra ve title RONG cho GUI (chi hien thi bang hinh anh
+    // tu resource pack), nen KHONG THE loc theo chu trong title nhu truoc.
+    // Thay vao do loc theo trang thai cua bot (inLobby / afkDone), vi day la
+    // 2 cua so duy nhat bot tu mo theo dung thu tu: /menu -> roi -> /afk.
+    if (inLobby) {
       await sleep(30000)
       bot.clickWindow(24, 0, 0)
       log('BOT', 'Click slot 24 -> vao KingSMP')
       inLobby = false
-      
+
       await sleep(30000)
       bot.chat('/afk')
       log('BOT', 'Da gui /afk')
+      return
     }
 
-    if (cleanTitle.includes('afk') && !afkDone) {
+    if (!afkDone) {
       await sleep(30000)
       const slot = config.afkSlot ?? 0
       bot.clickWindow(slot, 0, 0)
