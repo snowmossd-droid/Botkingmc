@@ -1,12 +1,14 @@
 {
-    "username": "botname",
-    "host": "kingsmp.vn",
-    "port": "25565",
-    "version": "1.21.1",
-    "respawn": false,
-
-    "registered": false,
-
-    "botPassword": "password",
-    "ownerUsername": "yourname"
+  "username": "hahahihiAnhvendz",
+  "host": "kingsmp.vn",
+  "port": 25565,
+  "version": "1.21.1",
+  "respawn": false,
+  "registered": false,
+  "botPassword": "nguyendz1212",
+  "afkSlot": 0,
+  "discord": {
+    "token": "TOKEN_BOT_DISCORD",
+    "logChannelId": "ID_CHANNEL_DISCORD"
+  }
 }
