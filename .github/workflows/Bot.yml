@@ -1,23 +1,46 @@
-name: Unzip
+name: Minecraft AFK Bot
 
 on:
-  push:
-    branches: [ main ]
+  schedule:
+    - cron: '0 */5 * * *'
+  workflow_dispatch:
 
 jobs:
-  unzip:
+  run-bot:
     runs-on: ubuntu-latest
+    timeout-minutes: 290
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Extract
-        run: unzip -o *.zip
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      - name: Commit extracted files
+      - name: Install dependencies
+        run: npm install
+
+      - name: Tạo config từ Secrets
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add .
-          git commit -m "Extract zip" || echo "Nothing to commit"
-          git push
+          cat > config.json << ENDOFCONFIG
+          {
+            "username": "${{ secrets.MC_USERNAME }}",
+            "host": "${{ secrets.MC_HOST }}",
+            "port": ${{ secrets.MC_PORT }},
+            "version": "${{ secrets.MC_VERSION }}",
+            "respawn": false,
+            "registered": ${{ secrets.MC_REGISTERED }},
+            "botPassword": "${{ secrets.MC_PASSWORD }}",
+            "afkSlot": ${{ secrets.AFK_SLOT }},
+            "discord": {
+              "token": "${{ secrets.DISCORD_TOKEN }}",
+              "logChannelId": "${{ secrets.DISCORD_CHANNEL_ID }}"
+            }
+          }
+          ENDOFCONFIG
+
+      - name: Chạy bot
+        run: node index.js
+        
