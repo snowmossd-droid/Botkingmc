@@ -33,8 +33,8 @@ function getUptime() {
   return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ${s%60}s`
 }
 
-function sleep(ms, jitter = 0) {
-  return new Promise(r => setTimeout(r, ms + (jitter ? Math.floor(Math.random() * jitter) : 0)))
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms))
 }
 
 function stripColor(str) {
@@ -65,14 +65,6 @@ function stopAntiAFK() {
   afkInterval = null
 }
 
-async function goAfk() {
-  if (!bot) return
-  afkDone = false
-  await sleep(2000, 500)
-  bot.chat('/afk')
-  log('BOT', 'Da gui /afk')
-}
-
 function start_bot() {
   inLobby = true
   afkDone = false
@@ -85,28 +77,24 @@ function start_bot() {
     respawn: true,
   })
 
-  bot.on('login', () => {
+  bot.on('login', async () => {
     log('OK', `Dang nhap! User: ${config.username}`)
-    if (!config.registered) {
-      setTimeout(() => {
-        bot.chat(`/dk ${config.botPassword}`)
-        config.registered = true
-        log('BOT', 'Dang ky: /dk')
-      }, 2000)
-    } else {
-      setTimeout(() => {
-        bot.chat(`/dn ${config.botPassword}`)
-        log('BOT', 'Dang nhap: /dn')
-      }, 2000)
-    }
+    
+    await sleep(30000)
+    bot.chat(`/dk ${config.botPassword}`)
+    log('BOT', 'Dang ky: /dk')
+    
+    await sleep(30000)
+    bot.chat(`/dn ${config.botPassword}`)
+    log('BOT', 'Dang nhap: /dn')
+    
+    await sleep(30000)
+    bot.chat('/menu')
+    log('BOT', 'Da gui /menu')
   })
 
   bot.on('spawn', () => {
     log('OK', 'Spawn vao server!')
-    setTimeout(() => {
-      bot.chat('/menu')
-      log('BOT', 'Da gui /menu')
-    }, 3000)
   })
 
   bot.on('chat', (username, message) => {
@@ -125,15 +113,18 @@ function start_bot() {
     log('GUI', `Cua so: "${title}"`)
 
     if (inLobby && title.toLowerCase().includes('menu')) {
-      await sleep(1000, 300)
-      bot.clickWindow(22, 0, 0)
-      log('BOT', 'Click slot 22 -> vao KingSMP')
+      await sleep(30000)
+      bot.clickWindow(24, 0, 0)
+      log('BOT', 'Click slot 24 -> vao KingSMP')
       inLobby = false
-      return
+      
+      await sleep(30000)
+      bot.chat('/afk')
+      log('BOT', 'Da gui /afk')
     }
 
     if (title.toLowerCase().includes('afk') && !afkDone) {
-      await sleep(800, 300)
+      await sleep(30000)
       const slot = config.afkSlot ?? 0
       bot.clickWindow(slot, 0, 0)
       log('BOT', `Click slot ${slot} -> AFK`)
@@ -151,9 +142,7 @@ function start_bot() {
     setTimeout(async () => {
       if (!bot) return
       bot.respawn()
-      await sleep(5000, 1000)
-      bot.chat('/menu')
-      log('BOT', 'Da gui /menu')
+      log('OK', 'Da respawn!')
     }, 5000)
   })
 
